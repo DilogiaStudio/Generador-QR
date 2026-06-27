@@ -4,316 +4,84 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Generador de Código QR</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/svg2pdf.js/2.2.3/svg2pdf.umd.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #f5f5f3;
-      color: #1a1a1a;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 2rem 1rem;
-    }
-
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f3; color: #1a1a1a; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 2rem 1rem; }
     header { text-align: center; margin-bottom: 2rem; }
     header h1 { font-size: 2rem; font-weight: 700; letter-spacing: -0.5px; color: #111; }
     header p { font-size: 0.95rem; color: #666; margin-top: 6px; }
-
-    .badge {
-      display: inline-block;
-      background: #e8f5e9;
-      color: #2e7d32;
-      font-size: 0.75rem;
-      font-weight: 600;
-      padding: 3px 10px;
-      border-radius: 20px;
-      margin-bottom: 10px;
-    }
-
-    .card {
-      background: #fff;
-      border-radius: 16px;
-      border: 1px solid #e5e5e5;
-      padding: 2rem;
-      width: 100%;
-      max-width: 580px;
-      box-shadow: 0 2px 16px rgba(0,0,0,0.06);
-    }
-
-    .tabs {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 6px;
-      margin-bottom: 1.5rem;
-    }
-
-    .tab-btn {
-      padding: 9px 8px;
-      font-size: 0.82rem;
-      font-weight: 500;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      background: #f5f5f3;
-      color: #666;
-      cursor: pointer;
-      transition: all 0.15s;
-      text-align: center;
-    }
-
+    .badge { display: inline-block; background: #e8f5e9; color: #2e7d32; font-size: 0.75rem; font-weight: 600; padding: 3px 10px; border-radius: 20px; margin-bottom: 10px; }
+    .card { background: #fff; border-radius: 16px; border: 1px solid #e5e5e5; padding: 2rem; width: 100%; max-width: 580px; box-shadow: 0 2px 16px rgba(0,0,0,0.06); }
+    .tabs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 1.5rem; }
+    .tab-btn { padding: 9px 8px; font-size: 0.82rem; font-weight: 500; border: 1px solid #ddd; border-radius: 10px; background: #f5f5f3; color: #666; cursor: pointer; transition: all 0.15s; text-align: center; }
     .tab-btn.active { background: #111; color: #fff; border-color: #111; }
     .tab-btn:hover:not(.active) { background: #ebebeb; }
-
-    .panel { display: none; }
-    .panel.active { display: block; }
-
-    label {
-      display: block;
-      font-size: 0.82rem;
-      font-weight: 500;
-      color: #555;
-      margin-bottom: 6px;
-    }
-
-    textarea, input[type="text"], input[type="password"], select {
-      width: 100%;
-      padding: 10px 13px;
-      font-size: 0.95rem;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      background: #fafafa;
-      color: #111;
-      outline: none;
-      transition: border 0.15s;
-      font-family: inherit;
-      margin-bottom: 14px;
-    }
-
-    textarea:focus, input[type="text"]:focus, input[type="password"]:focus, select:focus {
-      border-color: #111; background: #fff;
-    }
-
+    .panel { display: none; } .panel.active { display: block; }
+    label { display: block; font-size: 0.82rem; font-weight: 500; color: #555; margin-bottom: 6px; }
+    textarea, input[type="text"], input[type="password"], select { width: 100%; padding: 10px 13px; font-size: 0.95rem; border: 1px solid #ddd; border-radius: 10px; background: #fafafa; color: #111; outline: none; transition: border 0.15s; font-family: inherit; margin-bottom: 14px; }
+    textarea:focus, input[type="text"]:focus, input[type="password"]:focus, select:focus { border-color: #111; background: #fff; }
     textarea { resize: vertical; min-height: 90px; }
-
-    .section-title {
-      font-size: 0.78rem;
-      font-weight: 600;
-      color: #999;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      margin-bottom: 10px;
-    }
-
-    .options-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 14px;
-      align-items: center;
-      padding: 14px;
-      background: #f9f9f8;
-      border-radius: 10px;
-      border: 1px solid #eee;
-      margin-bottom: 12px;
-    }
-
-    .opt-group {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
+    .section-title { font-size: 0.78rem; font-weight: 600; color: #999; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px; }
+    .options-row { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; padding: 14px; background: #f9f9f8; border-radius: 10px; border: 1px solid #eee; margin-bottom: 12px; }
+    .opt-group { display: flex; align-items: center; gap: 8px; }
     .opt-group label { margin: 0; font-size: 0.82rem; color: #555; white-space: nowrap; }
-
-    input[type="color"] {
-      width: 34px; height: 34px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      cursor: pointer;
-      padding: 2px;
-      background: #fff;
-    }
-
+    input[type="color"] { width: 34px; height: 34px; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; padding: 2px; background: #fff; }
     input[type="range"] { width: 90px; accent-color: #111; }
     .size-label { font-size: 0.82rem; color: #555; min-width: 38px; }
-
-    /* Logo section */
-    .logo-section {
-      padding: 14px;
-      background: #f9f9f8;
-      border-radius: 10px;
-      border: 1px solid #eee;
-      margin-bottom: 12px;
-    }
-
-    .logo-toggle {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 0;
-      cursor: pointer;
-    }
-
-    .logo-toggle input[type="checkbox"] {
-      width: 18px; height: 18px;
-      accent-color: #111;
-      cursor: pointer;
-      margin: 0;
-    }
-
+    .logo-section { padding: 14px; background: #f9f9f8; border-radius: 10px; border: 1px solid #eee; margin-bottom: 12px; }
+    .logo-toggle { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+    .logo-toggle input[type="checkbox"] { width: 18px; height: 18px; accent-color: #111; cursor: pointer; margin: 0; }
     .logo-toggle span { font-size: 0.88rem; font-weight: 500; color: #333; }
-
-    .logo-controls {
-      margin-top: 14px;
-      display: none;
-      flex-direction: column;
-      gap: 12px;
-    }
-
+    .logo-controls { margin-top: 14px; display: none; flex-direction: column; gap: 12px; }
     .logo-controls.visible { display: flex; }
-
-    .logo-drop-area {
-      border: 2px dashed #ddd;
-      border-radius: 10px;
-      padding: 20px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.15s;
-      background: #fff;
-      position: relative;
-    }
-
-    .logo-drop-area:hover, .logo-drop-area.dragover {
-      border-color: #111;
-      background: #f5f5f3;
-    }
-
-    .logo-drop-area input[type="file"] {
-      position: absolute; inset: 0;
-      opacity: 0; cursor: pointer;
-      width: 100%; height: 100%;
-      margin: 0; padding: 0; border: none;
-    }
-
+    .logo-drop-area { border: 2px dashed #ddd; border-radius: 10px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.15s; background: #fff; position: relative; }
+    .logo-drop-area:hover, .logo-drop-area.dragover { border-color: #111; background: #f5f5f3; }
+    .logo-drop-area input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; margin: 0; padding: 0; border: none; }
     .logo-drop-area p { font-size: 0.85rem; color: #888; pointer-events: none; }
     .logo-drop-area p strong { color: #111; }
-
-    #logo-preview-wrap {
-      display: none;
-      align-items: center;
-      gap: 10px;
-      background: #fff;
-      border: 1px solid #eee;
-      border-radius: 10px;
-      padding: 10px 14px;
-    }
-
+    .format-badge { display: inline-block; background: #e3f2fd; color: #1565c0; font-size: 0.7rem; font-weight: 700; padding: 2px 6px; border-radius: 4px; margin: 2px; }
+    .format-badge.vector { background: #f3e5f5; color: #6a1b9a; }
+    #logo-preview-wrap { display: none; align-items: center; gap: 10px; background: #fff; border: 1px solid #eee; border-radius: 10px; padding: 10px 14px; }
     #logo-preview-wrap.visible { display: flex; }
-
-    #logo-preview {
-      width: 48px; height: 48px;
-      object-fit: contain;
-      border-radius: 6px;
-      border: 1px solid #eee;
-    }
-
+    #logo-preview { width: 48px; height: 48px; object-fit: contain; border-radius: 6px; border: 1px solid #eee; }
     #logo-preview-wrap span { font-size: 0.82rem; color: #555; flex: 1; }
-
-    .remove-btn {
-      background: none;
-      border: 1px solid #eee;
-      border-radius: 8px;
-      padding: 4px 10px;
-      font-size: 0.78rem;
-      color: #c62828;
-      cursor: pointer;
-    }
-
+    .logo-type-badge { font-size: 0.7rem; font-weight: 700; padding: 2px 7px; border-radius: 4px; }
+    .logo-type-badge.svg { background: #f3e5f5; color: #6a1b9a; }
+    .logo-type-badge.raster { background: #e8f5e9; color: #2e7d32; }
+    .remove-btn { background: none; border: 1px solid #eee; border-radius: 8px; padding: 4px 10px; font-size: 0.78rem; color: #c62828; cursor: pointer; }
     .remove-btn:hover { background: #fff5f5; border-color: #c62828; }
-
-    .logo-opts-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 14px;
-      align-items: center;
-    }
-
-    /* Logo shape buttons */
+    .logo-opts-row { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
     .shape-btns { display: flex; gap: 6px; }
-    .shape-btn {
-      padding: 5px 12px;
-      font-size: 0.78rem;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      background: #fff;
-      color: #555;
-      cursor: pointer;
-      transition: all 0.12s;
-    }
+    .shape-btn { padding: 5px 12px; font-size: 0.78rem; border: 1px solid #ddd; border-radius: 8px; background: #fff; color: #555; cursor: pointer; transition: all 0.12s; }
     .shape-btn.active { background: #111; color: #fff; border-color: #111; }
-
-    /* Color overlay for logo bg */
     .logo-bg-group { display: flex; align-items: center; gap: 8px; }
     .logo-bg-group label { font-size: 0.82rem; color: #555; margin: 0; white-space: nowrap; }
-
-    .qr-output {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 1.2rem;
-      margin-top: 1rem;
-    }
-
-    #qr-wrapper {
-      position: relative;
-      display: inline-block;
-      padding: 16px;
-      background: #fff;
-      border-radius: 12px;
-      border: 1px solid #e5e5e5;
-      transition: box-shadow 0.2s;
-    }
-
+    .vector-note { font-size: 0.75rem; color: #6a1b9a; background: #f3e5f5; border-radius: 8px; padding: 6px 10px; display: none; }
+    .vector-note.visible { display: block; }
+    .qr-output { display: flex; flex-direction: column; align-items: center; gap: 1.2rem; margin-top: 1rem; }
+    #qr-wrapper { position: relative; display: inline-block; padding: 16px; background: #fff; border-radius: 12px; border: 1px solid #e5e5e5; transition: box-shadow 0.2s; }
     #qr-wrapper:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-
-    /* The final merged canvas */
     #final-canvas { display: block; }
-
     .btn-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
-
-    .btn {
-      padding: 10px 20px;
-      font-size: 0.88rem;
-      font-weight: 500;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      background: #fff;
-      color: #111;
-      cursor: pointer;
-      transition: all 0.15s;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
+    .btn { padding: 10px 20px; font-size: 0.88rem; font-weight: 500; border: 1px solid #ddd; border-radius: 10px; background: #fff; color: #111; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 6px; }
     .btn:hover { background: #111; color: #fff; border-color: #111; }
     .btn-primary { background: #111; color: #fff; border-color: #111; }
     .btn-primary:hover { background: #333; border-color: #333; }
-
+    .btn-vector { background: #6a1b9a; color: #fff; border-color: #6a1b9a; }
+    .btn-vector:hover { background: #4a148c; border-color: #4a148c; }
+    .btn-pdf { background: #c62828; color: #fff; border-color: #c62828; }
+    .btn-pdf:hover { background: #b71c1c; border-color: #b71c1c; }
+    .pdf-opts { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 12px 14px; background: #fff5f5; border-radius: 10px; border: 1px solid #ffcdd2; margin-top: 10px; }
+    .pdf-opts label { margin: 0; font-size: 0.82rem; color: #555; white-space: nowrap; }
+    .pdf-opts select { width: auto; margin: 0; padding: 6px 10px; font-size: 0.82rem; }
+    .pdf-opts input[type="text"] { width: 160px; margin: 0; padding: 6px 10px; font-size: 0.82rem; }
     #status { font-size: 0.8rem; color: #888; text-align: center; }
-    #status.ok { color: #2e7d32; }
-    #status.err { color: #c62828; }
-
+    #status.ok { color: #2e7d32; } #status.err { color: #c62828; }
     .divider { border: none; border-top: 1px solid #eee; margin: 1.5rem 0; }
-
     footer { margin-top: 2rem; font-size: 0.78rem; color: #aaa; text-align: center; }
-
-    @media (max-width: 480px) {
-      .card { padding: 1.2rem; }
-      header h1 { font-size: 1.5rem; }
-    }
+    @media (max-width: 480px) { .card { padding: 1.2rem; } header h1 { font-size: 1.5rem; } }
   </style>
 </head>
 <body>
@@ -325,7 +93,6 @@
 </header>
 
 <div class="card">
-
   <div class="tabs">
     <button class="tab-btn active" onclick="setTab('url')">🔗 URL / Texto</button>
     <button class="tab-btn" onclick="setTab('wifi')">📶 WiFi</button>
@@ -336,7 +103,6 @@
     <label for="qr-input">URL, texto, email o teléfono</label>
     <textarea id="qr-input" placeholder="Ej: https://mipagina.com" oninput="generate()">https://</textarea>
   </div>
-
   <div class="panel" id="panel-wifi">
     <label>Nombre de red (SSID)</label>
     <input type="text" id="wifi-ssid" placeholder="Mi Red WiFi" oninput="generate()" />
@@ -344,67 +110,68 @@
     <input type="password" id="wifi-pass" placeholder="Contraseña" oninput="generate()" />
     <label>Tipo de seguridad</label>
     <select id="wifi-type" onchange="generate()">
-      <option value="WPA">WPA / WPA2</option>
-      <option value="WEP">WEP</option>
-      <option value="nopass">Sin contraseña</option>
+      <option value="WPA">WPA / WPA2</option><option value="WEP">WEP</option><option value="nopass">Sin contraseña</option>
     </select>
   </div>
-
   <div class="panel" id="panel-contact">
-    <label>Nombre</label>
-    <input type="text" id="vc-name" placeholder="Juan Pérez" oninput="generate()" />
-    <label>Teléfono</label>
-    <input type="text" id="vc-tel" placeholder="+51 999 999 999" oninput="generate()" />
-    <label>Email</label>
-    <input type="text" id="vc-email" placeholder="correo@email.com" oninput="generate()" />
-    <label>Empresa</label>
-    <input type="text" id="vc-org" placeholder="Mi Empresa" oninput="generate()" />
+    <label>Nombre</label><input type="text" id="vc-name" placeholder="Juan Pérez" oninput="generate()" />
+    <label>Teléfono</label><input type="text" id="vc-tel" placeholder="+51 999 999 999" oninput="generate()" />
+    <label>Email</label><input type="text" id="vc-email" placeholder="correo@email.com" oninput="generate()" />
+    <label>Empresa</label><input type="text" id="vc-org" placeholder="Mi Empresa" oninput="generate()" />
   </div>
 
   <hr class="divider" />
 
-  <!-- Colores y tamaño -->
   <p class="section-title">Diseño del QR</p>
   <div class="options-row">
-    <div class="opt-group">
-      <label>Color QR</label>
-      <input type="color" id="qr-color" value="#000000" onchange="generate()" />
-    </div>
-    <div class="opt-group">
-      <label>Fondo</label>
-      <input type="color" id="qr-bg" value="#ffffff" onchange="generate()" />
-    </div>
-    <div class="opt-group">
+    <div class="opt-group"><label>Color QR</label><input type="color" id="qr-color" value="#000000" onchange="generate()" /></div>
+    <div class="opt-group"><label>Fondo</label><input type="color" id="qr-bg" value="#ffffff" onchange="generate()" /></div>
+    <div class="opt-group" style="flex-wrap:wrap;gap:6px;">
       <label>Tamaño</label>
-      <input type="range" id="qr-size" min="150" max="500" value="280" step="10" oninput="updateSize()" />
-      <span class="size-label" id="size-label">280px</span>
+      <input type="range" id="qr-size" min="50" max="500" value="280" step="1" oninput="sliderChanged()" />
+      <input type="number" id="qr-size-input" value="280" min="10" max="2000"
+        style="width:70px;margin:0;padding:5px 8px;font-size:0.85rem;border:1px solid #ddd;border-radius:8px;background:#fafafa;text-align:center;"
+        oninput="manualSizeInput()" />
+      <select id="qr-unit" onchange="unitChanged()"
+        style="width:auto;margin:0;padding:5px 8px;font-size:0.85rem;border:1px solid #ddd;border-radius:8px;background:#fafafa;">
+        <option value="px">px</option>
+        <option value="cm">cm</option>
+      </select>
     </div>
   </div>
 
-  <!-- Logo / Imagen central -->
   <p class="section-title">Logo en el centro</p>
   <div class="logo-section">
     <label class="logo-toggle">
       <input type="checkbox" id="logo-enabled" onchange="toggleLogo()" />
-      <span>Agregar logo o imagen en el centro del QR</span>
+      <span>Agregar logo en el centro del QR</span>
     </label>
-
     <div class="logo-controls" id="logo-controls">
-
-      <!-- Drop area -->
       <div class="logo-drop-area" id="drop-area">
-        <input type="file" id="logo-file" accept="image/*" onchange="handleLogoFile(event)" />
-        <p>📁 <strong>Haz clic</strong> o arrastra tu logo aquí<br><span style="font-size:0.75rem;color:#bbb;">PNG, JPG, SVG — recomendado fondo transparente (PNG)</span></p>
+        <input type="file" id="logo-file" accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml" onchange="handleLogoFile(event)" />
+        <p>📁 <strong>Haz clic</strong> o arrastra tu logo aquí</p>
+        <p style="margin-top:6px;">
+          <span class="format-badge vector">SVG</span>
+          <span class="format-badge">PNG</span>
+          <span class="format-badge">JPG</span>
+          <span class="format-badge">WEBP</span>
+        </p>
+        <p style="margin-top:4px;font-size:0.72rem;color:#aaa;">SVG = 100% vectorial en el resultado final</p>
       </div>
 
-      <!-- Preview del logo cargado -->
       <div id="logo-preview-wrap">
         <img id="logo-preview" src="" alt="Logo" />
-        <span id="logo-filename">logo.png</span>
+        <div style="flex:1;">
+          <span id="logo-filename" style="font-size:0.82rem;color:#555;display:block;"></span>
+          <span id="logo-type-badge" class="logo-type-badge"></span>
+        </div>
         <button class="remove-btn" onclick="removeLogo()">✕ Quitar</button>
       </div>
 
-      <!-- Opciones de logo -->
+      <div id="vector-note" class="vector-note">
+        ✦ Logo SVG detectado — el SVG descargado será <strong>100% vectorial</strong>, apto para Illustrator sin pérdida de calidad.
+      </div>
+
       <div class="logo-opts-row">
         <div class="opt-group">
           <label>Tamaño logo</label>
@@ -414,9 +181,9 @@
         <div class="opt-group">
           <label>Forma fondo</label>
           <div class="shape-btns">
-            <button class="shape-btn active" onclick="setShape('circle')">⬤ Círculo</button>
-            <button class="shape-btn" onclick="setShape('square')">■ Cuadrado</button>
-            <button class="shape-btn" onclick="setShape('none')">Sin fondo</button>
+            <button class="shape-btn active" onclick="setShape('circle',this)">⬤ Círculo</button>
+            <button class="shape-btn" onclick="setShape('square',this)">■ Cuadrado</button>
+            <button class="shape-btn" onclick="setShape('none',this)">Sin fondo</button>
           </div>
         </div>
         <div class="logo-bg-group">
@@ -424,266 +191,469 @@
           <input type="color" id="logo-bg-color" value="#ffffff" onchange="generate()" />
         </div>
       </div>
-
     </div>
   </div>
 
-  <!-- Salida QR -->
   <div class="qr-output">
-    <div id="qr-wrapper">
-      <canvas id="final-canvas"></canvas>
-    </div>
-
+    <div id="qr-wrapper"><canvas id="final-canvas"></canvas></div>
     <div class="btn-row">
-      <button class="btn btn-primary" onclick="downloadQR('png')">⬇ Descargar PNG</button>
-      <button class="btn" onclick="downloadQR('svg')">⬇ Descargar SVG</button>
-      <button class="btn" onclick="copyQR()">📋 Copiar imagen</button>
+      <button class="btn btn-primary" onclick="downloadPNG()">⬇ PNG</button>
+      <button class="btn btn-vector" id="btn-svg" onclick="downloadSVG()">⬇ SVG vectorial</button>
+      <button class="btn btn-pdf" onclick="togglePDFOpts()">⬇ PDF</button>
+      <button class="btn" onclick="copyQR()">📋 Copiar</button>
     </div>
 
+    <div class="pdf-opts" id="pdf-opts" style="display:none;">
+      <div class="opt-group"><label>Tamaño hoja</label>
+        <select id="pdf-size">
+          <option value="a4">A4</option>
+          <option value="letter">Carta (Letter)</option>
+          <option value="a3">A3</option>
+          <option value="a5">A5</option>
+        </select>
+      </div>
+      <div class="opt-group"><label>Orientación</label>
+        <select id="pdf-orient">
+          <option value="portrait">Vertical</option>
+          <option value="landscape">Horizontal</option>
+        </select>
+      </div>
+      <div class="opt-group"><label>Título (opcional)</label>
+        <input type="text" id="pdf-title" placeholder="Escanea este QR" />
+      </div>
+      <button class="btn btn-pdf" style="padding:7px 16px;font-size:0.82rem;" onclick="downloadPDF()">Generar PDF</button>
+    </div>
     <p id="status"></p>
   </div>
-
 </div>
 
 <footer>Generado localmente en tu navegador — sin servidores, sin cuentas, sin vencimiento.</footer>
 
 <script>
-  let currentTab = 'url';
-  const tabs = ['url', 'wifi', 'contact'];
-  let logoImage = null;
-  let logoShape = 'circle';
+// ── QR encoder ────────────────────────────────────────────────────────────
+var QRUtil=(function(){
+  var PPT=[[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70],[6,26,50,74],[6,30,54,78],[6,30,56,82],[6,30,58,86],[6,34,62,90],[6,28,50,72,94],[6,26,50,74,98],[6,30,54,78,102],[6,28,54,80,106],[6,32,58,84,110],[6,30,58,86,114],[6,34,62,90,118],[6,26,50,74,98,122],[6,30,54,78,102,126],[6,26,52,78,104,130],[6,30,56,82,108,134],[6,34,60,86,112,138],[6,30,58,86,114,142],[6,34,62,90,118,146],[6,30,54,78,102,126,150],[6,24,50,76,102,128,154],[6,28,54,80,106,132,158],[6,32,58,84,110,136,162],[6,26,54,82,110,138,166],[6,30,58,86,114,142,170]];
+  var G15=(1<<10)|(1<<8)|(1<<5)|(1<<4)|(1<<2)|(1<<1)|1,G18=(1<<12)|(1<<11)|(1<<10)|(1<<9)|(1<<8)|(1<<5)|(1<<2)|1,G15M=(1<<14)|(1<<12)|(1<<10)|(1<<4)|(1<<1);
+  function bchd(d){var n=0;while(d!=0){n++;d>>>=1;}return n;}
+  return{PPT,G15,G18,G15M,bchTI:function(d){var x=d<<10;while(bchd(x)-bchd(G15)>=0)x^=G15<<(bchd(x)-bchd(G15));return((d<<10)|x)^G15M;},bchTN:function(d){var x=d<<12;while(bchd(x)-bchd(G18)>=0)x^=G18<<(bchd(x)-bchd(G18));return(d<<12)|x;},pp:function(t){return PPT[t-1];},mask:function(m,i,j){switch(m){case 0:return(i+j)%2==0;case 1:return i%2==0;case 2:return j%3==0;case 3:return(i+j)%3==0;case 4:return(Math.floor(i/2)+Math.floor(j/3))%2==0;case 5:return(i*j)%2+(i*j)%3==0;case 6:return((i*j)%2+(i*j)%3)%2==0;case 7:return((i+j)%2+(i*j)%3)%2==0;}},ecp:function(n){var a=new QRP([1],0);for(var i=0;i<n;i++)a=a.mul(new QRP([1,QRM.ge(i)],0));return a;},lib:function(mode,t){if(mode==4){if(t<10)return 8;return 16;}},lp:function(q){var mc=q.mc(),lp=0;for(var r=0;r<mc;r++){for(var c=0;c<mc;c++){var sc=0,dk=q.id(r,c);for(var dr=-1;dr<=1;dr++)for(var dc=-1;dc<=1;dc++){if(r+dr<0||mc<=r+dr||c+dc<0||mc<=c+dc)continue;if(dr==0&&dc==0)continue;if(dk==q.id(r+dr,c+dc))sc++;}if(sc>5)lp+=3+sc-5;}}for(var r=0;r<mc-1;r++)for(var c=0;c<mc-1;c++){var cnt=0;if(q.id(r,c))cnt++;if(q.id(r+1,c))cnt++;if(q.id(r,c+1))cnt++;if(q.id(r+1,c+1))cnt++;if(cnt==0||cnt==4)lp+=3;}for(var r=0;r<mc;r++)for(var c=0;c<mc-6;c++)if(q.id(r,c)&&!q.id(r,c+1)&&q.id(r,c+2)&&q.id(r,c+3)&&q.id(r,c+4)&&!q.id(r,c+5)&&q.id(r,c+6))lp+=40;for(var c=0;c<mc;c++)for(var r=0;r<mc-6;r++)if(q.id(r,c)&&!q.id(r+1,c)&&q.id(r+2,c)&&q.id(r+3,c)&&q.id(r+4,c)&&!q.id(r+5,c)&&q.id(r+6,c))lp+=40;var dk=0;for(var r=0;r<mc;r++)for(var c=0;c<mc;c++)if(q.id(r,c))dk++;lp+=Math.abs(100*dk/mc/mc-50)/5*10;return lp;}};
+})();
+var QRM=(function(){var E=new Array(256),L=new Array(256);for(var i=0;i<8;i++)E[i]=1<<i;for(var i=8;i<256;i++)E[i]=E[i-4]^E[i-5]^E[i-6]^E[i-8];for(var i=0;i<255;i++)L[E[i]]=i;return{gl:function(n){return L[n];},ge:function(n){while(n<0)n+=255;while(n>=256)n-=255;return E[n];}};})();
+function QRP(n,s){this.n=[];for(var i=0;i<n.length;i++)if(n[i]!=0)break;this.n=new Array(n.length-i+s);for(var j=0;j<n.length-i;j++)this.n[j]=n[j+i];}
+QRP.prototype={g:function(i){return this.n[i];},l:function(){return this.n.length;},mul:function(e){var n=new Array(this.l()+e.l()-1);for(var i=0;i<this.l();i++)for(var j=0;j<e.l();j++)n[i+j]^=QRM.ge(QRM.gl(this.g(i))+QRM.gl(e.g(j)));return new QRP(n,0);},mod:function(e){if(this.l()-e.l()<0)return this;var r=QRM.gl(this.g(0))-QRM.gl(e.g(0));var n=new Array(this.l());for(var i=0;i<this.l();i++)n[i]=this.g(i);for(var i=0;i<e.l();i++)n[i]^=QRM.ge(QRM.gl(e.g(i))+r);return new QRP(n,0).mod(e);}};
+var RSBT=[[1,26,19],[1,26,16],[1,26,13],[1,26,9],[1,44,34],[1,44,28],[1,44,22],[1,44,16],[1,70,55],[1,70,44],[2,35,17],[2,35,13],[1,100,80],[2,50,32],[2,50,24],[4,25,9],[1,134,108],[2,67,43],[2,33,15,2,34,16],[2,33,11,2,34,12],[2,86,68],[4,43,27],[4,43,19],[4,43,15],[2,98,78],[4,49,31],[2,32,14,4,33,15],[4,39,13,1,40,14],[2,121,97],[2,60,38,2,61,39],[4,40,18,2,41,19],[4,40,14,2,41,15],[2,146,116],[3,58,36,2,59,37],[4,36,16,4,37,17],[4,36,12,4,37,13],[2,86,68,2,87,69],[4,69,43,1,70,44],[6,43,19,2,44,20],[6,43,15,2,44,16],[4,101,81],[1,80,50,4,81,51],[4,50,22,4,51,23],[3,36,12,8,37,13],[2,116,92,2,117,93],[6,58,36,2,59,37],[4,46,20,6,47,21],[7,42,14,4,43,15],[4,133,107],[8,59,37,1,60,38],[8,44,20,4,45,21],[12,33,11,4,34,12],[3,145,115,1,146,116],[4,64,40,5,65,41],[11,36,16,5,37,17],[11,36,12,5,37,13],[5,109,87,1,110,88],[5,65,41,5,66,42],[5,54,24,7,55,25],[11,36,12,7,37,13],[5,122,98,1,123,99],[7,73,45,3,74,46],[15,43,19,2,44,20],[3,45,15,13,46,16],[1,135,107,5,136,108],[10,74,46,1,75,47],[1,50,22,15,51,23],[2,42,14,17,43,15],[5,150,120,1,151,121],[9,69,43,4,70,44],[17,50,22,1,51,23],[2,42,14,19,43,15],[3,141,113,4,142,114],[3,70,44,11,71,45],[17,47,21,4,48,22],[9,39,13,16,40,14],[3,135,107,5,136,108],[3,67,41,13,68,42],[15,54,24,5,55,25],[15,43,15,10,44,16],[4,144,116,4,145,117],[17,68,42],[17,50,22,6,51,23],[19,46,16,6,47,17],[2,139,111,7,140,112],[17,74,46],[7,54,24,16,55,25],[34,37,13],[4,151,121,5,152,122],[4,75,47,14,76,48],[11,54,24,14,55,25],[16,45,15,14,46,16],[6,147,117,4,148,118],[6,73,45,14,74,46],[11,54,24,16,55,25],[30,46,16,2,47,17],[8,132,106,4,133,107],[8,75,47,13,76,48],[7,54,24,22,55,25],[22,45,15,13,46,16],[10,142,114,2,143,115],[19,74,46,4,75,47],[28,50,22,6,51,23],[33,46,16,4,47,17],[8,152,122,4,153,123],[22,73,45,3,74,46],[8,53,23,26,54,24],[12,45,15,28,46,16],[3,147,117,10,148,118],[3,73,45,23,74,46],[4,54,24,31,55,25],[11,45,15,31,46,16],[7,146,116,7,147,117],[21,73,45,7,74,46],[1,53,23,37,54,24],[19,45,15,26,46,16],[5,145,115,10,146,116],[19,75,47,10,76,48],[15,54,24,25,55,25],[23,45,15,25,46,16],[13,145,115,3,146,116],[2,74,46,29,75,47],[42,54,24,1,55,25],[23,45,15,28,46,16],[17,145,115],[10,74,46,23,75,47],[10,54,24,35,55,25],[19,45,15,35,46,16],[17,145,115,1,146,116],[14,74,46,21,75,47],[29,54,24,19,55,25],[11,45,15,46,46,16],[13,145,115,6,146,116],[14,74,46,23,75,47],[44,54,24,7,55,25],[59,46,16,1,47,17],[12,151,121,7,152,122],[12,75,47,26,76,48],[39,54,24,14,55,25],[22,45,15,41,46,16],[6,151,121,14,152,122],[6,75,47,34,76,48],[46,54,24,10,55,25],[2,45,15,64,46,16],[17,152,122,4,153,123],[29,74,46,14,75,47],[49,54,24,10,55,25],[24,45,15,46,46,16],[4,152,122,18,153,123],[13,74,46,32,75,47],[48,54,24,14,55,25],[42,45,15,32,46,16],[20,147,117,4,148,118],[40,75,47,7,76,48],[43,54,24,22,55,25],[10,45,15,67,46,16],[19,148,118,6,149,119],[18,75,47,31,76,48],[34,54,24,34,55,25],[20,45,15,61,46,16]];
+function getRSB(t,ec){var b=RSBT[(t-1)*4+ec],l=[];for(var i=0;i<b.length;i+=3)for(var j=0;j<b[i];j++)l.push({tc:b[i+1],dc:b[i+2]});return l;}
+function QRBuf(){this.buf=[];this.len=0;}
+QRBuf.prototype={get:function(i){return((this.buf[Math.floor(i/8)]>>>(7-i%8))&1)==1;},put:function(n,l){for(var i=0;i<l;i++)this.pb(((n>>>(l-i-1))&1)==1);},gl:function(){return this.len;},pb:function(b){var bi=Math.floor(this.len/8);if(this.buf.length<=bi)this.buf.push(0);if(b)this.buf[bi]|=(0x80>>>(this.len%8));this.len++;}};
 
-  // ---- Tabs ----
-  function setTab(tab) {
-    currentTab = tab;
-    tabs.forEach(t => document.getElementById('panel-' + t).classList.toggle('active', t === tab));
-    document.querySelectorAll('.tab-btn').forEach((btn, i) => btn.classList.toggle('active', tabs[i] === tab));
-    generate();
+function createQRMatrix(text){
+  var EC=2;
+  var typeNumber=0;
+  for(var t=1;t<=40;t++){
+    var rsb=getRSB(t,EC),mx=0;for(var b=0;b<rsb.length;b++)mx+=rsb[b].dc;
+    var ul=0;for(var i=0;i<text.length;i++){var c=text.charCodeAt(i);if(c<128)ul+=1;else if(c<2048)ul+=2;else ul+=3;}
+    if(mx>=ul+3){typeNumber=t;break;}
   }
+  if(!typeNumber)typeNumber=40;
+  var mc=typeNumber*4+17;
+  var modules=[],isFn=[];
+  for(var i=0;i<mc;i++){modules[i]=[];isFn[i]=[];for(var j=0;j<mc;j++){modules[i][j]=null;isFn[i][j]=false;}}
+  function sf(r,c,v){if(r>=0&&r<mc&&c>=0&&c<mc){modules[r][c]=v;isFn[r][c]=true;}}
+  function fp(row,col){for(var r=-1;r<=7;r++)for(var c=-1;c<=7;c++){if(row+r<=-1||mc<=row+r||col+c<=-1||mc<=col+c)continue;sf(row+r,col+c,(0<=r&&r<=6&&(c==0||c==6))||(0<=c&&c<=6&&(r==0||r==6))||(2<=r&&r<=4&&2<=c&&c<=4));}}
+  fp(0,0);fp(mc-7,0);fp(0,mc-7);
+  for(var i=0;i<7;i++){sf(i,7,false);sf(mc-7+i,7,false);sf(i,mc-8,false);}
+  for(var i=0;i<8;i++){sf(7,i,false);sf(mc-8,i,false);sf(7,mc-8+i,false);}
+  var pos=QRUtil.pp(typeNumber);
+  for(var ia=0;ia<pos.length;ia++)for(var ja=0;ja<pos.length;ja++){var r=pos[ia],c=pos[ja];if(modules[r][c]!==null)continue;for(var dr=-2;dr<=2;dr++)for(var dc=-2;dc<=2;dc++)sf(r+dr,c+dc,(dr==-2||dr==2||dc==-2||dc==2||(dr==0&&dc==0)));}
+  for(var i=8;i<mc-8;i++){sf(6,i,i%2==0);sf(i,6,i%2==0);}
+  sf(mc-8,8,true);
+  for(var i=0;i<=8;i++){if(i!=6){sf(i,8,false);sf(8,i,false);}sf(mc-1-i,8,false);sf(8,mc-8+i,false);}
+  if(typeNumber>=7)for(var i=0;i<6;i++)for(var j=0;j<3;j++){sf(typeNumber-11+j,i,false);sf(i,typeNumber-11+j,false);}
+  var d8=[];var ut='';
+  for(var i=0;i<text.length;i++){var c=text.charCodeAt(i);if(c<128)ut+=String.fromCharCode(c);else if(c<2048)ut+=String.fromCharCode((c>>6)|192,((c&63)|128));else ut+=String.fromCharCode((c>>12)|224,((c>>6)&63)|128,((c&63)|128));}
+  for(var i=0;i<ut.length;i++)d8.push(ut.charCodeAt(i));
+  var buf=new QRBuf();buf.put(4,4);buf.put(d8.length,8);for(var i=0;i<d8.length;i++)buf.put(d8[i],8);
+  var rsb=getRSB(typeNumber,EC),tdc=0;for(var i=0;i<rsb.length;i++)tdc+=rsb[i].dc;
+  if(buf.gl()<=tdc*8)buf.put(0,Math.min(4,tdc*8-buf.gl()));
+  while(buf.gl()%8!=0)buf.pb(false);
+  var pad=[0xEC,0x11],pi=0;while(buf.gl()<tdc*8){buf.put(pad[pi%2],8);pi++;}
+  var mdc=0,mec=0,dcd=[],ecd=[];
+  for(var i=0;i<rsb.length;i++){var dc=rsb[i].dc,ec=rsb[i].tc-dc;mdc=Math.max(mdc,dc);mec=Math.max(mec,ec);dcd[i]=[];var off=0;for(var k=0;k<i;k++)off+=rsb[k].dc;for(var j=0;j<dc;j++)dcd[i][j]=buf.buf[j+off]&0xff;var rsp=QRUtil.ecp(ec);var rwp=new QRP(dcd[i],rsp.l()-1);var mp=rwp.mod(rsp);ecd[i]=[];for(var j=0;j<rsp.l()-1;j++){var mi=j+mp.l()-rsp.l()+1;ecd[i][j]=(mi>=0)?mp.g(mi):0;}}
+  var tcc=0;for(var i=0;i<rsb.length;i++)tcc+=rsb[i].tc;
+  var data=new Array(tcc),idx=0;
+  for(var i=0;i<mdc;i++)for(var j=0;j<rsb.length;j++)if(i<dcd[j].length)data[idx++]=dcd[j][i];
+  for(var i=0;i<mec;i++)for(var j=0;j<rsb.length;j++)if(i<ecd[j].length)data[idx++]=ecd[j][i];
+  var inc=-1,row=mc-1,bi=7,by=0;
+  for(var col=mc-1;col>0;col-=2){if(col==6)col--;while(true){for(var c=0;c<2;c++){if(modules[row][col-c]===null){var dk=false;if(by<data.length)dk=((data[by]>>bi)&1)==1;modules[row][col-c]=dk;bi--;if(bi==-1){by++;bi=7;}}}row+=inc;if(row<0||mc<=row){row-=inc;inc=-inc;break;}}}
+  var bm=null,bl=Infinity;
+  for(var mp=0;mp<8;mp++){
+    var tm=[];for(var i=0;i<mc;i++){tm[i]=[];for(var j=0;j<mc;j++)tm[i][j]=modules[i][j];}
+    for(var i=0;i<mc;i++)for(var j=0;j<mc;j++)if(!isFn[i][j]&&QRUtil.mask(mp,i,j))tm[i][j]=!tm[i][j];
+    var fi=QRUtil.bchTI((EC<<3)|mp);
+    var fp2=[]; 
+    for(var i=0;i<=5;i++){tm[i][8]=!!(fi&(1<<(i)));tm[8][5-i]=!!(fi&(1<<(i)));}
+    tm[7][8]=!!(fi&(1<<6));tm[8][7]=!!(fi&(1<<7));tm[8][8]=!!(fi&(1<<8));
+    for(var i=9;i<15;i++){tm[14-i+mc-(mc-15)][8]=!!(fi&(1<<i));tm[8][mc-15+i]=!!(fi&(1<<i));}
+    var fq={mc:function(){return mc;},id:function(r,c){return tm[r][c];}};
+    var lp=QRUtil.lp(fq);
+    if(lp<bl){bl=lp;bm=tm;}
+  }
+  return{matrix:bm,moduleCount:mc};
+}
 
-  // ---- Data ----
-  function getData() {
-    if (currentTab === 'url') return document.getElementById('qr-input').value.trim();
-    if (currentTab === 'wifi') {
-      const ssid = document.getElementById('wifi-ssid').value.trim();
-      const pass = document.getElementById('wifi-pass').value.trim();
-      const type = document.getElementById('wifi-type').value;
-      return ssid ? `WIFI:T:${type};S:${ssid};P:${pass};;` : '';
+// ── App state ─────────────────────────────────────────────────────────────
+var currentTab='url', logoImage=null, logoShape='circle';
+var logoIsSVG=false, logoSVGContent='', logoDataURL='';
+var qrMatrix=null, qrMC=0;
+
+function setTab(t){currentTab=t;['url','wifi','contact'].forEach(function(x){document.getElementById('panel-'+x).classList.toggle('active',x==t);});document.querySelectorAll('.tab-btn').forEach(function(b,i){b.classList.toggle('active',['url','wifi','contact'][i]==t);});generate();}
+
+function getData(){
+  if(currentTab=='url')return document.getElementById('qr-input').value.trim();
+  if(currentTab=='wifi'){var s=document.getElementById('wifi-ssid').value.trim(),p=document.getElementById('wifi-pass').value.trim(),t=document.getElementById('wifi-type').value;return s?'WIFI:T:'+t+';S:'+s+';P:'+p+';;':'';}
+  if(currentTab=='contact'){var n=document.getElementById('vc-name').value.trim(),t=document.getElementById('vc-tel').value.trim(),e=document.getElementById('vc-email').value.trim(),o=document.getElementById('vc-org').value.trim();if(!n&&!t&&!e)return'';return'BEGIN:VCARD\nVERSION:3.0\nFN:'+n+'\nTEL:'+t+'\nEMAIL:'+e+'\nORG:'+o+'\nEND:VCARD';}
+  return'';
+}
+
+var CM_TO_PX=37.7953; // 96dpi: 1cm = 37.7953px
+
+function getSizePx(){
+  // Always returns the pixel size for canvas rendering
+  return parseInt(document.getElementById('qr-size').value)||280;
+}
+
+function sliderChanged(){
+  var px=parseInt(document.getElementById('qr-size').value);
+  var unit=document.getElementById('qr-unit').value;
+  if(unit==='cm'){
+    document.getElementById('qr-size-input').value=(px/CM_TO_PX).toFixed(2);
+  } else {
+    document.getElementById('qr-size-input').value=px;
+  }
+  generate();
+}
+
+function manualSizeInput(){
+  var val=parseFloat(document.getElementById('qr-size-input').value)||280;
+  var unit=document.getElementById('qr-unit').value;
+  var px=unit==='cm'?Math.round(val*CM_TO_PX):Math.round(val);
+  px=Math.max(50,Math.min(2000,px));
+  // Update slider (capped at 500 for slider range)
+  document.getElementById('qr-size').value=Math.min(500,px);
+  // Store actual px in a data attr for rendering
+  document.getElementById('qr-size').dataset.actualPx=px;
+  generate();
+}
+
+function unitChanged(){
+  var px=getActualPx();
+  var unit=document.getElementById('qr-unit').value;
+  if(unit==='cm'){
+    document.getElementById('qr-size-input').value=(px/CM_TO_PX).toFixed(2);
+    document.getElementById('qr-size').min=Math.round(1*CM_TO_PX);
+    document.getElementById('qr-size').max=500;
+  } else {
+    document.getElementById('qr-size-input').value=px;
+    document.getElementById('qr-size').min=50;
+    document.getElementById('qr-size').max=500;
+  }
+}
+
+function getActualPx(){
+  var stored=parseInt(document.getElementById('qr-size').dataset.actualPx);
+  return stored||parseInt(document.getElementById('qr-size').value)||280;
+}
+
+function updateSize(){sliderChanged();}
+function updateLogoSize(){document.getElementById('logo-size-label').textContent=document.getElementById('logo-size').value+'%';generate();}
+function toggleLogo(){document.getElementById('logo-controls').classList.toggle('visible',document.getElementById('logo-enabled').checked);generate();}
+function setShape(s,btn){logoShape=s;document.querySelectorAll('.shape-btn').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');generate();}
+
+function handleLogoFile(e){
+  var file=e.target.files[0];if(!file)return;
+  logoIsSVG=file.type==='image/svg+xml'||file.name.toLowerCase().endsWith('.svg');
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    if(logoIsSVG){
+      logoSVGContent=ev.target.result;
+      // Sanitizar SVG mínimamente para que el navegador lo acepte como imagen
+      var svgFixed=logoSVGContent;
+      if(svgFixed.indexOf('xmlns')===-1)svgFixed=svgFixed.replace('<svg','<svg xmlns="http://www.w3.org/2000/svg"');
+      var blob=new Blob([svgFixed],{type:'image/svg+xml;charset=utf-8'});
+      var url=URL.createObjectURL(blob);
+      logoImage=new Image();
+      logoImage.onload=function(){
+        logoDataURL=url;
+        document.getElementById('logo-preview').src=url;
+        generate();
+      };
+      logoImage.onerror=function(){
+        // Fallback: base64
+        var b64='data:image/svg+xml;base64,'+btoa(unescape(encodeURIComponent(svgFixed)));
+        logoImage=new Image();
+        logoImage.onload=function(){logoDataURL=b64;document.getElementById('logo-preview').src=b64;generate();};
+        logoImage.src=b64;
+      };
+      logoImage.src=url;
+    } else {
+      logoSVGContent='';
+      logoDataURL=ev.target.result;
+      logoImage=new Image();
+      logoImage.onload=function(){
+        document.getElementById('logo-preview').src=ev.target.result;
+        generate();
+      };
+      logoImage.src=ev.target.result;
     }
-    if (currentTab === 'contact') {
-      const name  = document.getElementById('vc-name').value.trim();
-      const tel   = document.getElementById('vc-tel').value.trim();
-      const email = document.getElementById('vc-email').value.trim();
-      const org   = document.getElementById('vc-org').value.trim();
-      if (!name && !tel && !email) return '';
-      return `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\nTEL:${tel}\nEMAIL:${email}\nORG:${org}\nEND:VCARD`;
+    document.getElementById('logo-filename').textContent=file.name;
+    var badge=document.getElementById('logo-type-badge');
+    if(logoIsSVG){badge.textContent='SVG · Vectorial';badge.className='logo-type-badge svg';}
+    else{badge.textContent='Raster (PNG/JPG)';badge.className='logo-type-badge raster';}
+    document.getElementById('vector-note').classList.toggle('visible',logoIsSVG);
+    document.getElementById('logo-preview-wrap').classList.add('visible');
+    document.getElementById('drop-area').style.display='none';
+  };
+  if(logoIsSVG)reader.readAsText(file);
+  else reader.readAsDataURL(file);
+}
+
+function removeLogo(){
+  logoImage=null;logoIsSVG=false;logoSVGContent='';logoDataURL='';
+  document.getElementById('logo-file').value='';
+  document.getElementById('logo-preview-wrap').classList.remove('visible');
+  document.getElementById('vector-note').classList.remove('visible');
+  document.getElementById('drop-area').style.display='block';
+  generate();
+}
+
+var da=document.getElementById('drop-area');
+['dragenter','dragover'].forEach(function(ev){da.addEventListener(ev,function(e){e.preventDefault();da.classList.add('dragover');});});
+['dragleave','drop'].forEach(function(ev){da.addEventListener(ev,function(e){e.preventDefault();da.classList.remove('dragover');});});
+da.addEventListener('drop',function(e){var f=e.dataTransfer.files[0];if(f&&(f.type.startsWith('image/')||f.name.endsWith('.svg'))){handleLogoFile({target:{files:[f]}});}});
+
+function generate(){
+  var data=getData(),status=document.getElementById('status');
+  if(!data){status.textContent='Escribe algo para generar el QR.';status.className='';return;}
+  try{
+    var r=createQRMatrix(data);
+    qrMatrix=r.matrix;qrMC=r.moduleCount;
+    renderCanvas();
+    status.textContent='✓ QR listo — puedes descargarlo o escanearlo.';status.className='ok';
+  }catch(ex){
+    console.error('QR error:',ex);
+    status.textContent='⚠ Error: '+ex.message;status.className='err';
+  }
+}
+
+function renderCanvas(){
+  var color=document.getElementById('qr-color').value,bg=document.getElementById('qr-bg').value;
+  var size=getActualPx();
+  // Limitar tamaño del canvas a máx 2000px para evitar errores de memoria
+  var canvasSize=Math.min(size,2000);
+  var canvas=document.getElementById('final-canvas');
+  canvas.width=canvasSize;canvas.height=canvasSize;
+  var ctx=canvas.getContext('2d'),cs=canvasSize/qrMC;
+  ctx.fillStyle=bg;ctx.fillRect(0,0,canvasSize,canvasSize);
+  ctx.fillStyle=color;
+  for(var r=0;r<qrMC;r++)for(var c=0;c<qrMC;c++)if(qrMatrix[r][c])ctx.fillRect(c*cs,r*cs,cs,cs);
+  var le=document.getElementById('logo-enabled').checked;
+  if(le&&logoImage&&logoImage.complete){
+    var pct=parseInt(document.getElementById('logo-size').value)/100;
+    var lbc=document.getElementById('logo-bg-color').value;
+    var lw=canvasSize*pct,lh=canvasSize*pct,cx=canvasSize/2,cy=canvasSize/2;
+    var pad=logoShape!='none'?6:0,bw=lw+pad*2,bh=lh+pad*2;
+    ctx.save();
+    if(logoShape=='circle'){ctx.beginPath();ctx.arc(cx,cy,bw/2,0,Math.PI*2);ctx.fillStyle=lbc;ctx.fill();}
+    else if(logoShape=='square'){
+      var rr=8,x=cx-bw/2,y=cy-bh/2;
+      ctx.beginPath();ctx.moveTo(x+rr,y);ctx.lineTo(x+bw-rr,y);ctx.quadraticCurveTo(x+bw,y,x+bw,y+rr);
+      ctx.lineTo(x+bw,y+bh-rr);ctx.quadraticCurveTo(x+bw,y+bh,x+bw-rr,y+bh);
+      ctx.lineTo(x+rr,y+bh);ctx.quadraticCurveTo(x,y+bh,x,y+bh-rr);
+      ctx.lineTo(x,y+rr);ctx.quadraticCurveTo(x,y,x+rr,y);
+      ctx.closePath();ctx.fillStyle=lbc;ctx.fill();
     }
-    return '';
+    ctx.drawImage(logoImage,cx-lw/2,cy-lh/2,lw,lh);
+    ctx.restore();
+  }
+  document.getElementById('qr-wrapper').style.background=bg;
+}
+
+function buildVectorSVG(){
+  if(!qrMatrix)return null;
+  var color=document.getElementById('qr-color').value,bg=document.getElementById('qr-bg').value;
+  var size=getActualPx(),cs=size/qrMC;
+  var d='';
+  for(var r=0;r<qrMC;r++)for(var c=0;c<qrMC;c++)if(qrMatrix[r][c]){var x=(c*cs).toFixed(3),y=(r*cs).toFixed(3),w=cs.toFixed(3);d+='M'+x+' '+y+'h'+w+'v'+w+'h-'+w+'z';}
+  var parts=['<?xml version="1.0" encoding="UTF-8"?>',
+    '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">',
+    '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 0 '+size+' '+size+'" width="'+size+'" height="'+size+'">',
+    '  <rect width="'+size+'" height="'+size+'" fill="'+bg+'"/>',
+    '  <path fill="'+color+'" d="'+d+'"/>'];
+
+  var le=document.getElementById('logo-enabled').checked;
+  if(le&&logoImage){
+    var pct=parseInt(document.getElementById('logo-size').value)/100,lbc=document.getElementById('logo-bg-color').value;
+    var lw=size*pct,lh=size*pct,cx=size/2,cy=size/2,pad=logoShape!='none'?6:0,bw=lw+pad*2,bh=lh+pad*2;
+    if(logoShape=='circle')parts.push('  <circle cx="'+cx+'" cy="'+cy+'" r="'+(bw/2)+'" fill="'+lbc+'"/>');
+    else if(logoShape=='square')parts.push('  <rect x="'+(cx-bw/2)+'" y="'+(cy-bh/2)+'" width="'+bw+'" height="'+bh+'" rx="8" fill="'+lbc+'"/>');
+
+    if(logoIsSVG&&logoSVGContent){
+      // Incrustar SVG inline como <g> dentro del SVG principal — 100% vectorial
+      var inner=logoSVGContent
+        .replace(/<\?xml[^?]*\?>/gi,'')
+        .replace(/<!DOCTYPE[^>]*>/gi,'')
+        .replace(/<svg([^>]*)>/i, function(_,attrs){
+          // extraer viewBox si existe para preservar proporciones
+          var vb=attrs.match(/viewBox=["']([^"']+)["']/i);
+          var vbAttr=vb?(' viewBox="'+vb[1]+'"'):'';
+          return '<svg'+vbAttr+' x="'+(cx-lw/2)+'" y="'+(cy-lh/2)+'" width="'+lw+'" height="'+lh+'" preserveAspectRatio="xMidYMid meet">';
+        });
+      parts.push('  '+inner);
+    } else {
+      // PNG/JPG: embebido como base64
+      parts.push('  <image href="'+logoDataURL+'" x="'+(cx-lw/2)+'" y="'+(cy-lh/2)+'" width="'+lw+'" height="'+lh+'" preserveAspectRatio="xMidYMid meet"/>');
+    }
+  }
+  parts.push('</svg>');
+  return parts.join('\n');
+}
+
+function downloadPNG(){
+  var c=document.getElementById('final-canvas');if(!c||c.width==0)return;
+  var l=document.createElement('a');l.download='codigo-qr.png';l.href=c.toDataURL('image/png');l.click();
+}
+
+function downloadSVG(){
+  var svg=buildVectorSVG();if(!svg)return;
+  var blob=new Blob([svg],{type:'image/svg+xml;charset=utf-8'});
+  var url=URL.createObjectURL(blob);
+  var l=document.createElement('a');l.download='codigo-qr.svg';l.href=url;l.click();
+  setTimeout(function(){URL.revokeObjectURL(url);},1000);
+}
+
+async function copyQR(){
+  var c=document.getElementById('final-canvas');if(!c)return;
+  try{c.toBlob(async function(b){await navigator.clipboard.write([new ClipboardItem({'image/png':b})]);document.getElementById('status').textContent='✓ Imagen copiada al portapapeles.';document.getElementById('status').className='ok';});}
+  catch(e){document.getElementById('status').textContent='No se pudo copiar — usa Descargar PNG.';}
+}
+
+function togglePDFOpts(){
+  var el=document.getElementById('pdf-opts');
+  el.style.display=el.style.display==='none'?'flex':'none';
+}
+
+async function downloadPDF(){
+  if(!qrMatrix)return;
+  var pageSize=document.getElementById('pdf-size').value;
+  var orient=document.getElementById('pdf-orient').value;
+  var title=document.getElementById('pdf-title').value.trim();
+  var color=document.getElementById('qr-color').value;
+  var bg=document.getElementById('qr-bg').value;
+
+  var pageDims={a4:[210,297],letter:[215.9,279.4],a3:[297,420],a5:[148,210]};
+  var dims=pageDims[pageSize]||pageDims['a4'];
+  var pw=orient==='landscape'?dims[1]:dims[0];
+  var ph=orient==='landscape'?dims[0]:dims[1];
+
+  // ── Tamaño exacto del QR en mm según lo que el usuario especificó ──
+  var unit=document.getElementById('qr-unit').value;
+  var inputVal=parseFloat(document.getElementById('qr-size-input').value)||8;
+  var qrMM; // siempre en mm para el PDF
+  if(unit==='cm'){
+    qrMM=inputVal*10; // cm → mm exacto
+  } else {
+    // px → mm a 96dpi: 1px = 0.264583mm
+    qrMM=inputVal*0.264583;
+  }
+  // Seguridad: no exceder la página con margen de 10mm
+  qrMM=Math.min(qrMM, Math.min(pw,ph)-20);
+  qrMM=Math.max(qrMM, 5); // mínimo 5mm
+
+  var titleH=title?12:0;
+  var qrX=(pw-qrMM)/2;
+  var qrY=(ph-qrMM-titleH)/2+(title?titleH:0);
+  var cs=qrMM/qrMC;
+
+  function hexRGB(h){return[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];}
+
+  var {jsPDF}=window.jspdf;
+  var doc=new jsPDF({orientation:orient,unit:'mm',format:pageSize});
+
+  // Título vectorial
+  if(title){
+    doc.setFontSize(16);doc.setFont('helvetica','bold');doc.setTextColor(30,30,30);
+    doc.text(title,pw/2,qrY-4,{align:'center'});
   }
 
-  // ---- Size ----
-  function updateSize() {
-    document.getElementById('size-label').textContent = document.getElementById('qr-size').value + 'px';
-    generate();
+  // Fondo QR vectorial
+  var bgc=hexRGB(bg);
+  doc.setFillColor(bgc[0],bgc[1],bgc[2]);
+  doc.rect(qrX,qrY,qrMM,qrMM,'F');
+
+  // Módulos QR — cada cuadrito como rectángulo PDF nativo (vectorial)
+  var fgc=hexRGB(color);
+  doc.setFillColor(fgc[0],fgc[1],fgc[2]);
+  for(var r=0;r<qrMC;r++)
+    for(var c=0;c<qrMC;c++)
+      if(qrMatrix[r][c])
+        doc.rect(qrX+c*cs, qrY+r*cs, cs, cs,'F');
+
+  // Logo
+  var le=document.getElementById('logo-enabled').checked;
+  if(le&&logoImage){
+    var pct=parseInt(document.getElementById('logo-size').value)/100;
+    var lbc=document.getElementById('logo-bg-color').value,lbcc=hexRGB(lbc);
+    var lwMM=qrMM*pct, lhMM=qrMM*pct;
+    var lcx=qrX+qrMM/2, lcy=qrY+qrMM/2;
+    var pad=logoShape!='none'?2:0, bwMM=lwMM+pad*2, bhMM=lhMM+pad*2;
+
+    doc.setFillColor(lbcc[0],lbcc[1],lbcc[2]);
+    if(logoShape=='circle') doc.circle(lcx,lcy,bwMM/2,'F');
+    else if(logoShape=='square') doc.roundedRect(lcx-bwMM/2,lcy-bhMM/2,bwMM,bhMM,1.5,1.5,'F');
+
+    var DPI=12;
+    var logoImg=await renderLogoToCanvas(lwMM,lhMM,DPI);
+    doc.addImage(logoImg,'PNG',lcx-lwMM/2,lcy-lhMM/2,lwMM,lhMM,undefined,'FAST');
   }
 
-  function updateLogoSize() {
-    document.getElementById('logo-size-label').textContent = document.getElementById('logo-size').value + '%';
-    generate();
-  }
+  doc.save('codigo-qr.pdf');
+}
 
-  // ---- Logo toggle ----
-  function toggleLogo() {
-    const enabled = document.getElementById('logo-enabled').checked;
-    document.getElementById('logo-controls').classList.toggle('visible', enabled);
-    generate();
-  }
+// Renderiza el logo (SVG o raster) en un canvas offscreen a alta res
+function renderLogoToCanvas(wMM,hMM,dpi){
+  return new Promise(function(resolve){
+    var wPx=Math.round(wMM*dpi), hPx=Math.round(hMM*dpi);
+    var oc=document.createElement('canvas');
+    oc.width=wPx; oc.height=hPx;
+    var ctx=oc.getContext('2d');
 
-  // ---- Logo file ----
-  function handleLogoFile(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(ev) {
-      logoImage = new Image();
-      logoImage.onload = () => generate();
-      logoImage.src = ev.target.result;
-      document.getElementById('logo-preview').src = ev.target.result;
-      document.getElementById('logo-filename').textContent = file.name;
-      document.getElementById('logo-preview-wrap').classList.add('visible');
-      document.getElementById('drop-area').style.display = 'none';
-    };
-    reader.readAsDataURL(file);
-  }
-
-  function removeLogo() {
-    logoImage = null;
-    document.getElementById('logo-file').value = '';
-    document.getElementById('logo-preview-wrap').classList.remove('visible');
-    document.getElementById('drop-area').style.display = 'block';
-    generate();
-  }
-
-  // ---- Shape ----
-  function setShape(shape) {
-    logoShape = shape;
-    document.querySelectorAll('.shape-btn').forEach(b => b.classList.remove('active'));
-    event.target.classList.add('active');
-    generate();
-  }
-
-  // ---- Drag & drop ----
-  const dropArea = document.getElementById('drop-area');
-  ['dragenter','dragover'].forEach(ev => dropArea.addEventListener(ev, e => { e.preventDefault(); dropArea.classList.add('dragover'); }));
-  ['dragleave','drop'].forEach(ev => dropArea.addEventListener(ev, e => { e.preventDefault(); dropArea.classList.remove('dragover'); }));
-  dropArea.addEventListener('drop', e => {
-    const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) {
-      const dt = new DataTransfer();
-      dt.items.add(file);
-      document.getElementById('logo-file').files = dt.files;
-      handleLogoFile({ target: { files: [file] } });
+    if(logoIsSVG&&logoSVGContent){
+      // Crear SVG con tamaño explícito en px para renderizar en canvas
+      var svgBlob=new Blob([logoSVGContent.replace(/<svg([^>]*)>/i,function(_,attrs){
+        var vb=attrs.match(/viewBox=["']([^"']+)["']/i);
+        var vbAttr=vb?' viewBox="'+vb[1]+'"':'';
+        return '<svg xmlns="http://www.w3.org/2000/svg"'+vbAttr+' width="'+wPx+'" height="'+hPx+'">';
+      })],{type:'image/svg+xml'});
+      var url=URL.createObjectURL(svgBlob);
+      var img=new Image();
+      img.onload=function(){
+        ctx.drawImage(img,0,0,wPx,hPx);
+        URL.revokeObjectURL(url);
+        resolve(oc.toDataURL('image/png'));
+      };
+      img.onerror=function(){
+        // fallback: usar logoImage directo
+        ctx.drawImage(logoImage,0,0,wPx,hPx);
+        resolve(oc.toDataURL('image/png'));
+      };
+      img.src=url;
+    } else {
+      ctx.drawImage(logoImage,0,0,wPx,hPx);
+      resolve(oc.toDataURL('image/png'));
     }
   });
+}
 
-  // ---- Generate ----
-  function generate() {
-    const data   = getData();
-    const color  = document.getElementById('qr-color').value;
-    const bg     = document.getElementById('qr-bg').value;
-    const size   = parseInt(document.getElementById('qr-size').value);
-    const status = document.getElementById('status');
-
-    if (!data) {
-      status.textContent = 'Escribe algo para generar el QR.';
-      status.className = '';
-      return;
-    }
-
-    // Hidden div to render QRCode lib output
-    let hidden = document.getElementById('qr-hidden');
-    if (!hidden) {
-      hidden = document.createElement('div');
-      hidden.id = 'qr-hidden';
-      hidden.style.cssText = 'position:absolute;left:-9999px;top:-9999px;';
-      document.body.appendChild(hidden);
-    }
-    hidden.innerHTML = '';
-
-    try {
-      new QRCode(hidden, {
-        text: data,
-        width: size,
-        height: size,
-        colorDark: color,
-        colorLight: bg,
-        correctLevel: QRCode.CorrectLevel.H  // High correction so logo doesn't break scan
-      });
-
-      // Wait for canvas to render, then composite
-      setTimeout(() => {
-        const srcCanvas = hidden.querySelector('canvas');
-        if (!srcCanvas) return;
-
-        const finalCanvas = document.getElementById('final-canvas');
-        finalCanvas.width  = size;
-        finalCanvas.height = size;
-        const ctx = finalCanvas.getContext('2d');
-
-        // Draw QR
-        ctx.drawImage(srcCanvas, 0, 0, size, size);
-
-        // Overlay logo if enabled
-        const logoEnabled = document.getElementById('logo-enabled').checked;
-        if (logoEnabled && logoImage) {
-          const pct       = parseInt(document.getElementById('logo-size').value) / 100;
-          const logoBgCol = document.getElementById('logo-bg-color').value;
-          const logoW     = size * pct;
-          const logoH     = size * pct;
-          const cx        = size / 2;
-          const cy        = size / 2;
-          const padding   = logoShape !== 'none' ? 6 : 0;
-          const bgW       = logoW + padding * 2;
-          const bgH       = logoH + padding * 2;
-
-          ctx.save();
-          if (logoShape === 'circle') {
-            ctx.beginPath();
-            ctx.arc(cx, cy, bgW / 2, 0, Math.PI * 2);
-            ctx.fillStyle = logoBgCol;
-            ctx.fill();
-          } else if (logoShape === 'square') {
-            const r = 8;
-            const x = cx - bgW / 2;
-            const y = cy - bgH / 2;
-            ctx.beginPath();
-            ctx.moveTo(x + r, y);
-            ctx.lineTo(x + bgW - r, y);
-            ctx.quadraticCurveTo(x + bgW, y, x + bgW, y + r);
-            ctx.lineTo(x + bgW, y + bgH - r);
-            ctx.quadraticCurveTo(x + bgW, y + bgH, x + bgW - r, y + bgH);
-            ctx.lineTo(x + r, y + bgH);
-            ctx.quadraticCurveTo(x, y + bgH, x, y + bgH - r);
-            ctx.lineTo(x, y + r);
-            ctx.quadraticCurveTo(x, y, x + r, y);
-            ctx.closePath();
-            ctx.fillStyle = logoBgCol;
-            ctx.fill();
-          }
-
-          // Draw logo image centered
-          ctx.drawImage(logoImage, cx - logoW / 2, cy - logoH / 2, logoW, logoH);
-          ctx.restore();
-        }
-
-        // Update wrapper bg
-        document.getElementById('qr-wrapper').style.background = bg;
-        status.textContent = '✓ QR listo — puedes descargarlo o escanearlo.';
-        status.className = 'ok';
-      }, 50);
-
-    } catch(e) {
-      status.textContent = '⚠ Error: el texto es demasiado largo o tiene caracteres inválidos.';
-      status.className = 'err';
-    }
-  }
-
-  // ---- Download ----
-  function downloadQR(format) {
-    const canvas = document.getElementById('final-canvas');
-    if (!canvas || canvas.width === 0) return;
-    const link = document.createElement('a');
-    if (format === 'png') {
-      link.download = 'codigo-qr.png';
-      link.href = canvas.toDataURL('image/png');
-    } else {
-      const size = canvas.width;
-      const dataUrl = canvas.toDataURL('image/png');
-      const svgData = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}"><image href="${dataUrl}" width="${size}" height="${size}"/></svg>`;
-      const blob = new Blob([svgData], { type: 'image/svg+xml' });
-      link.download = 'codigo-qr.svg';
-      link.href = URL.createObjectURL(blob);
-    }
-    link.click();
-  }
-
-  async function copyQR() {
-    const canvas = document.getElementById('final-canvas');
-    if (!canvas) return;
-    try {
-      canvas.toBlob(async blob => {
-        await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-        const status = document.getElementById('status');
-        status.textContent = '✓ Imagen copiada al portapapeles.';
-        status.className = 'ok';
-      });
-    } catch(e) {
-      document.getElementById('status').textContent = 'No se pudo copiar — usa Descargar PNG.';
-    }
-  }
-
-  window.onload = () => generate();
+window.onload=function(){generate();};
 </script>
-
 </body>
 </html>
